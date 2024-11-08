@@ -1,7 +1,9 @@
 from Crypto.Hash import SHA256, MD5
 from Crypto.Util import number
-from .Signature import Signature
-from .KeyPair import KeyPair
+from Signature import Signature
+from KeyPair import KeyPair
+import time
+
 class CryptographicSystem:
     def __init__(self, q, g):
         self.q = q
@@ -98,34 +100,52 @@ if __name__ == "__main__":
     
     crypto_sys = CryptographicSystem(q, g)
 
-    
+    inicio = time.time()
     key1 = KeyPair(q, g)
-    key2 = KeyPair(q, g)
-    key3 = KeyPair(q, g)
-    key4 = KeyPair(q, g)
+    fim = time.time()
+    tempo_total = (fim - inicio) * 1000
+    print(f"Tempo para gera o par de chaves: {tempo_total} ms")
+    
 
-    public_keys = [key1.public_key, key2.public_key, key3.public_key, key4.public_key]
-    public_keys2 = [key2.public_key, key1.public_key, key3.public_key, key4.public_key]
+
+    public_keys = [
+        key1.public_key
+    ]
+    for i in range(1, 1000):
+        key = KeyPair(q, g)
+        public_keys.append(key.public_key)
+
+    print("numero de chaves = ", len(public_keys))
+
+
+    
 
     
     message1 = "mensagem teste"
-    message2 = "outra mensagem"
+    message2 = "mensagem teste 2"
 
-   
-    r1 = number.getRandomRange(1, q - 1)
+    
+    inicio = time.time()
     signature1 = crypto_sys.generate_signature(public_keys, message1, key1.private_key)
-
-    r2 = number.getRandomRange(1, q - 1)
+    fim = time.time()
+    tempo_total = (fim - inicio) * 1000
+    print(f"Tempo de execução assinatura: {tempo_total} ms")
     signature2 = crypto_sys.generate_signature(public_keys, message2, key1.private_key)
 
-    r3 = number.getRandomRange(1, q - 1)
-    signature3 = crypto_sys.generate_signature(public_keys2, message2, key2.private_key)
+    
 
     # Exibir resultados
-    print(f"h: {crypto_sys.calculate_h(public_keys)}")
-    print(f"y0 1: {crypto_sys.calculate_y0(crypto_sys.calculate_h(public_keys), key1.private_key)}")
-    print(f"Signature 1: {signature1.get()}")
+    #print(f"h: {crypto_sys.calculate_h(public_keys)}")
+    #print(f"y0 1: {crypto_sys.calculate_y0(crypto_sys.calculate_h(public_keys), key1.private_key)}")
+    #print(f"Signature 1: {signature1[0].get()}")
+    inicio = time.time()
+    print("Link entre signature1 e signature2:", crypto_sys.link(signature1[0], signature2[0]))
+    fim = time.time()
+    tempo_total = (fim - inicio) * 1000
+    print(f"Tempo para verificar duas mensagens emitidas pelo mesmo autor: {tempo_total} ms")
 
-    print("Link entre signature1 e signature2:", crypto_sys.link(signature1, signature2))
-    print("Verificação de signature3:", crypto_sys.verify_signature(public_keys2, message2, signature3, r3))
-    print("Verificação de signature2:", crypto_sys.verify_signature(public_keys, message1, signature2, r2))
+    inicio = time.time()
+    crypto_sys.verify_signature(public_keys, message1, signature1[0], signature1[1])
+    fim = time.time()
+    tempo_total = (fim - inicio) * 1000
+    print(f"Tempo de execução verificação de assinatura: {tempo_total} ms")
