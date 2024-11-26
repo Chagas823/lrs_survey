@@ -1,7 +1,7 @@
 from Crypto.Hash import SHA256, MD5
 from Crypto.Util import number
-from Signature import Signature
-from KeyPair import KeyPair
+from .Signature import Signature
+from .KeyPair import KeyPair
 import time
 
 class CryptographicSystem:
@@ -102,6 +102,7 @@ if __name__ == "__main__":
 
     inicio = time.time()
     key1 = KeyPair(q, g)
+    key2 = KeyPair(q, g)
     fim = time.time()
     tempo_total = (fim - inicio) * 1000
     print(f"Tempo para gera o par de chaves: {tempo_total} ms")
@@ -109,9 +110,10 @@ if __name__ == "__main__":
 
 
     public_keys = [
-        key1.public_key
+        key1.public_key,
+        key2.public_key
     ]
-    for i in range(1, 1000):
+    for i in range(1, 5):
         key = KeyPair(q, g)
         public_keys.append(key.public_key)
 
@@ -130,7 +132,7 @@ if __name__ == "__main__":
     fim = time.time()
     tempo_total = (fim - inicio) * 1000
     print(f"Tempo de execução assinatura: {tempo_total} ms")
-    signature2 = crypto_sys.generate_signature(public_keys, message2, key1.private_key)
+    signature2 = crypto_sys.generate_signature(public_keys, message2, key2.private_key)
 
     
 

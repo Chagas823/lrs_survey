@@ -27,7 +27,13 @@ def create_app():
     # Inicializa o SQLAlchemy com o app
     db.init_app(app)
     
+    @app.route('/generate_key', methods=['GET'])
+    def generate_key():
+        config_keypair = KeyPair(q,g)
+        private_key, public_key = config_keypair.generate_key_pair()
+        return jsonify({'private_key': private_key, 'public_key': public_key}), 201
 
+        
     @app.route('/generate-link', methods=['GET'])
     def generate_link(participante_id):
         token = str(uuid.uuid4())  
@@ -242,8 +248,8 @@ def create_app():
         assinatura[0].s_values = str(assinatura[0].s_values)
         assinatura[0].c_values = str(assinatura[0].c_values)
      
-        if verificar_se_ja_respondeu(str(assinatura[0].y0), pesquisa_id):
-            return jsonify({'error': 'Esta pesquisa já foi respondida por este usuário'}), 401
+        #if verificar_se_ja_respondeu(str(assinatura[0].y0), pesquisa_id):
+            #return jsonify({'error': 'Esta pesquisa já foi respondida por este usuário'}), 401
         
 
         assinatura_model = Assinatura(y0=assinatura[0].y0, s_values=assinatura[0].s_values,c_values=assinatura[0].c_values, r=assinatura[1])
