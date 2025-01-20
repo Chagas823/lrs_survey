@@ -1,2 +1,2 @@
-/docker-compose.yml
-/test_email.py
+docker-compose.yml
+test_email.py
