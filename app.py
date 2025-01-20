@@ -41,6 +41,30 @@ def create_app():
         link = f'http://localhost:5000/use-link/{token}/{participante_id}'
         return f'Link gerado: <a href="{link}">{link}</a>'
 
+
+    @app.route('/use-link/<token>/<participante_id>', methods=['GET'])
+    def use_link(token, participante_id):
+        if token in tokens:
+            if tokens[token]:  
+                expired_html = '''
+                <h1>Este link já foi utilizado!</h1>
+                <p>Por favor, gere um novo link para acessar a chave.</p>
+                '''
+                return render_template_string(expired_html)
+            else:
+                tokens[token] = True
+                config_keypair = KeyPair(q,g)
+                private_key, public_key = config_keypair.generate_key_pair()
+                print("aqui 👌",atualizar_chave_publica(participante_id=participante_id, nova_chave_publica=public_key))
+                success_html = f'''
+                    <div class="key">{public_key}</div>
+                    <p>Chave privada:</p>
+                    <div class="key">{private_key}</div>
+                '''
+                return render_template_string(success_html)
+        else:
+            return 'Link inválido ou expirado.', 404
+
     @app.route('/use-link/<token>/<participante_id>', methods=['GET'])
     def use_link(token, participante_id):
         
@@ -249,7 +273,7 @@ def create_app():
         assinatura[0].c_values = str(assinatura[0].c_values)
      
         #if verificar_se_ja_respondeu(str(assinatura[0].y0), pesquisa_id):
-            #return jsonify({'error': 'Esta pesquisa já foi respondida por este usuário'}), 401
+           #return jsonify({'error': 'Esta pesquisa já foi respondida por este usuário'}), 401
         
 
         assinatura_model = Assinatura(y0=assinatura[0].y0, s_values=assinatura[0].s_values,c_values=assinatura[0].c_values, r=assinatura[1])
@@ -270,6 +294,25 @@ def create_app():
         db.session.commit()
 
         return jsonify({'message': 'Assinatura realizada com sucesso!', 'grupo_id': data}), 201
+
+    @app.route("/teste-link/<int:id_sig2>/<int:id_sig1>", methods=['GET'])
+    def teste_link(id_sig1, id_sig2):
+        assinatura1 = Assinatura.query.get(id_sig1)
+        assinatura2 = Assinatura.query.get(id_sig2)
+        if not assinatura1:
+            return jsonify({'error': 'assinatura 1 não encontrado.'}), 404
+        if not assinatura2:
+            return jsonify({'error': 'assinatura 2  não encontrado.'}), 404
+        
+        sig1 = Signature(assinatura1.y0, assinatura1.s_values, assinatura1.c_values)
+        sig2 = Signature(assinatura2.y0, assinatura2.s_values, assinatura2.c_values)
+        crypto_sys =CryptographicSystem(q,g)
+        link = crypto_sys.link(sig1, sig2)
+
+        if link == True:
+            return jsonify({'message': 'as duas assinaturas foram emitidas pela mesma entidade', 'resultado': link}), 201
+        else:
+            return jsonify({'message': 'as duas assinaturas NÃO foram emitidas pela mesma entidade', 'resultado': link}), 201
 
     @app.route("/verificar-assinatura", methods=['POST'])
     def verificar_assinatura():
