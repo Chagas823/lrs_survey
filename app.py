@@ -8,7 +8,7 @@ from model.models import *
 from database import db, Config
 import smtplib
 from sqlalchemy import text
-from email.mime.text import MIMEText
+from email.mime.text import MIMETextw
 from email.mime.multipart import MIMEMultipart
 from sqlalchemy.orm import Session
 from decimal import Decimal
@@ -383,9 +383,9 @@ def create_app():
         pesquisa_id = data['pesquisa_id']
         participantes = obter_participantes(grupo_id=grupo_id)
 
-        FROMADDR = "fd912735@gmail.com"
+        FROMADDR = ""
         LOGIN    = FROMADDR
-        PASSWORD = "yrvz ttwz bfyl vyuk"
+        PASSWORD = ""
         SUBJECT  = "Link para a Pesquisa (to do)"
         
         server = smtplib.SMTP('smtp.gmail.com', 587)
